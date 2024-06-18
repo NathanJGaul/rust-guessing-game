@@ -1,35 +1,39 @@
 use std::io;
 use std::io::Write;
-use rand::prelude::*;
+use rand::Rng;
 
 fn main() {
     let mut guess: String = String::new();
-    let target: u8 = random();
+    let target = rand::thread_rng().gen_range(1..=100);
 
-    while guess.trim() != "q" {
-        guess.clear();
+    println!("Guess a number between 1 and 100");
+    println!("Type 'q' to quit the game");
 
-        println!("Guess a number between {} and {}", u8::MIN, u8::MAX);
-        println!("(q)uit the program");
-
+    loop {
         print!("Your guess: ");
-        io::stdout().flush().expect("Cannot flush stdout");
+        io::stdout().flush().expect("Failed to flush stdout");
 
+        guess.clear();
         io::stdin()
             .read_line(&mut guess)
-            .expect("Cannot read user input");
+            .expect("Failed to read input");
 
-        println!();
+        let guess = guess.trim();
 
-        match guess.trim().parse::<u8>() {
+        if guess == "q" {
+            println!("You quit the game.");
+            break;
+        }
+
+        match guess.parse::<u32>() {
             Ok(n) if n == target => {
-                println!("You guessed correct!");
+                println!("You guessed correctly!");
                 break;
             },
-            Ok(n) if n < target => println!("Your guess was lower"),
-            Ok(n) if n > target => println!("Your guess was higher"),
-            Ok(_) => println!("Not sure what is going on here..."),
-            Err(e) => println!("Error: {}", e),
+            Ok(n) if n < target => println!("Your guess was too low."),
+            Ok(n) if n > target => println!("Your guess was too high."),
+            Ok(_) => println!("Unknown error."),
+            Err(_) => println!("Invalid input. Please enter a number between 1 and 100 or quit with 'q'."),
         }
     }
 }
